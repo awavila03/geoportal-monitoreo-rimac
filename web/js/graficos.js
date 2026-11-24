@@ -11,7 +11,9 @@
 
 import { fechaCorta, fechaLima, infoSemaforo, numero, svg, textoLimite, trazosIcono } from "./dom.js";
 
-const ALTO = 188;
+// Una gráfica por fila, a todo el ancho del panel; algo más bajas en celular.
+const ALTO_ESCRITORIO = 240;
+const ALTO_CELULAR = 210;
 const M = { izq: 38, der: 16, sup: 40, inf: 24 };   // márgenes del área de trazado
 
 /* Escala "bonita" de 0 a un máximo redondeado, con 4-6 marcas. */
@@ -43,8 +45,8 @@ function rotular(capa, W, texto, tipo) {
   const xFin = W - M.der;
   const t = svg("text", { x: xFin, y: 13, class: "grafico__rotulo", "text-anchor": "end" }, texto);
   capa.append(t);
-  // ancho aproximado del texto (11 px, Source Sans): ~5.6 px por carácter
-  const xMuestra = xFin - texto.length * 5.6 - 20;
+  // ancho aproximado del texto (12 px, Source Sans, negrita): ~6.2 px por carácter
+  const xMuestra = xFin - texto.length * 6.2 - 20;
   if (tipo === "linea") {
     capa.append(svg("line", { x1: xMuestra, x2: xMuestra + 14, y1: 9, y2: 9, class: "grafico__linea-limite" }));
   } else {
@@ -58,6 +60,7 @@ function rotular(capa, W, texto, tipo) {
 
 /* Devuelve un <svg> para las filas (ya ordenadas por fecha) de un parámetro. */
 export function graficoBarras({ parametro, unidad, filas, ancho }) {
+  const ALTO = window.matchMedia("(max-width: 48rem)").matches ? ALTO_CELULAR : ALTO_ESCRITORIO;
   const W = Math.max(200, Math.round(ancho));
   const pw = W - M.izq - M.der;
   const ph = ALTO - M.sup - M.inf;

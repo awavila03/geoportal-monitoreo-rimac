@@ -286,8 +286,8 @@ a { color: var(--petroleo); text-underline-offset: 0.18em; }
 .panel__subtitulo--graficos { margin-top: 0.25rem; }
 .graficos {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr);   /* una gráfica por fila, a todo el ancho */
+  gap: 0.75rem;
   margin: 0.4rem 0 1rem;
 }
 .graficos__estado { grid-column: 1 / -1; margin: 0; padding: 0.75rem 0; color: var(--tinta-2); }
@@ -305,7 +305,7 @@ a { color: var(--petroleo); text-underline-offset: 0.18em; }
 .grafico-figura__nota { margin: 0; padding: 0 0.6rem; font-size: 0.8rem; color: var(--tinta-2); line-height: 1.3; }
 
 .grafico { display: block; overflow: visible; font-family: var(--fuente); }
-.grafico text { font-size: 11px; }
+.grafico text { font-size: 12px; }
 .grafico__eje { fill: var(--tinta-2); }
 .grafico__unidad { fill: var(--tinta-2); font-weight: 600; }
 .grafico__rejilla { stroke: #ece7dc; stroke-width: 1; }
@@ -331,7 +331,7 @@ a { color: var(--petroleo); text-underline-offset: 0.18em; }
 .barra--no-cumple .barra__icono { stroke: var(--no-cumple); }
 .barra--sin-dato .barra__icono { stroke: var(--sin-dato); }
 .barra__sin-dato { stroke: var(--sin-dato-marca); stroke-width: 3; stroke-linecap: round; }
-.grafico .barra__texto-sin-dato { fill: var(--sin-dato); font-size: 10.5px; font-weight: 700; }
+.grafico .barra__texto-sin-dato { fill: var(--sin-dato); font-size: 12px; font-weight: 700; }
 
 .mini-tabla-contenedor { overflow-x: auto; margin-top: 0.5rem; }
 .mini-tabla { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
@@ -481,17 +481,32 @@ a { color: var(--petroleo); text-underline-offset: 0.18em; }
 /* ---------- Celular: hoja inferior ---------- */
 
 @media (max-width: 48rem) {
-  .cabecera { padding: 0.55rem 0.9rem; }
-  .cabecera h1 { font-size: 1.15rem; }
+  /* Celular: base 15 px, espaciado más compacto, ningún texto < 12 px y
+   * controles táctiles >= 44 px (2.75rem). Los campos de formulario se quedan
+   * en 16 px para que iOS no haga zoom al enfocarlos. */
+  :root { --hoja-plegada: 5.6rem; }
+  body { font-size: 0.9375rem; line-height: 1.45; }
+
+  .cabecera { padding: 0.4rem 0.75rem; gap: 0.5rem; }
+  .cabecera h1 { font-size: 1rem; }
   .cabecera__sub { display: none; }
-  .boton-info { padding: 0.3rem 0.65rem; min-height: 2.4rem; }
-  .aviso { padding: 0.35rem 0.9rem; font-size: 0.9rem; }
+  .boton-info { min-height: 2.75rem; padding: 0.25rem 0.65rem; font-size: 0.875rem; }
+  .boton-info .icono { width: 1rem; height: 1rem; }
+  .aviso { padding: 0.3rem 0.75rem; font-size: 0.875rem; gap: 0.4rem; }
+  .aviso__icono { width: 1rem; height: 1rem; }
   .aviso__largo { display: none; }
-  .info { inset: 3.75rem 0.5rem auto 0.5rem; width: auto; }
+  .info { inset: 3.5rem 0.5rem auto 0.5rem; width: auto; padding: 0.75rem 1rem 1rem; font-size: 0.875rem; }
+  .info h2 { font-size: 1.05rem; }
+  .info h3 { font-size: 0.9375rem; margin-top: 0.75rem; }
+  .info__cerrar { width: 2.75rem; height: 2.75rem; }
 
   .app { grid-template-columns: minmax(0, 1fr); position: relative; }
   /* El mapa deja libre la franja de la hoja plegada para que sus controles se vean. */
   .mapa { height: calc(100% - var(--hoja-plegada)); }
+  .leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; font-size: 22px; }
+  .leyenda { font-size: 0.875rem; }
+  .leyenda__boton { min-height: 2.75rem; }
+  .leyenda__nota { font-size: 0.75rem; }
 
   .panel {
     position: fixed; left: 0; right: 0; bottom: 0;
@@ -511,7 +526,7 @@ a { color: var(--petroleo); text-underline-offset: 0.18em; }
   .panel__asa {
     display: grid; place-items: center;
     flex: none;
-    width: 100%; height: 1.9rem;
+    width: 100%; height: 2.75rem;
     border: 0; border-radius: 16px 16px 0 0; background: none;
     cursor: pointer;
   }
@@ -519,12 +534,46 @@ a { color: var(--petroleo); text-underline-offset: 0.18em; }
   .panel__asa:focus-visible { outline-offset: -4px; }
 
   .pestanas { padding: 0 0.5rem; }
-  .pestanas [role="tab"] { padding: 0.55rem 0.25rem 0.5rem; }
-  .panel__contenido { padding: 0.9rem 1rem 1.25rem; }
-  .graficos { grid-template-columns: minmax(0, 1fr); }
-  .conteo { padding: 0.5rem 0.55rem 0.45rem; }
-  .conteo__etiqueta { font-size: 0.8rem; gap: 0.2rem; white-space: nowrap; }
-  .conteo__numero { font-size: 1.7rem; }
+  .pestanas [role="tab"] { min-height: 2.75rem; padding: 0.3rem 0.25rem 0.25rem; font-size: 0.9375rem; }
+  .panel__contenido { padding: 0.7rem 0.85rem 1rem; }
+  .panel__intro { font-size: 0.875rem; margin-bottom: 0.45rem; }
+  .panel__subtitulo { font-size: 0.9375rem; margin: 0.9rem 0 0.2rem; }
+
+  .semaforo { font-size: 0.8125rem; }
+  .semaforo svg { width: 0.85rem; height: 0.85rem; }
+
+  .conteos { gap: 0.45rem; }
+  .conteo { padding: 0.4rem 0.5rem 0.35rem; }
+  .conteo__etiqueta { font-size: 0.8125rem; gap: 0.2rem; white-space: nowrap; }
+  .conteo__etiqueta svg { width: 0.85rem; height: 0.85rem; }
+  .conteo__numero { font-size: 1.4rem; }
+
+  .estacion { min-height: 2.75rem; padding: 0.4rem 0.3rem; gap: 0.5rem; grid-template-columns: 2.3rem minmax(0, 1fr) auto; }
+  .estacion__fecha { font-size: 0.8125rem; }
+
+  .ficha { margin-bottom: 0.75rem; }
+  .ficha__codigo { font-size: 0.875rem; }
+  .ficha__nombre { font-size: 1.15rem; }
+  .ficha__estado { margin-top: 0.45rem; }
+  .ficha__estado .semaforo { font-size: 0.875rem; }
+  .ficha__meta { font-size: 0.8125rem; margin-top: 0.35rem; }
+  .graficos { gap: 0.6rem; margin-bottom: 0.75rem; }
+  .grafico-figura figcaption { font-size: 0.875rem; }
+  .grafico-figura__nota { font-size: 0.75rem; }
+  .mini-tabla { font-size: 0.875rem; }
+  .mini-tabla thead th { font-size: 0.8125rem; }
+  .mini-tabla th, .mini-tabla td { padding: 0.35rem 0.3rem; }
+
+  .filtros { gap: 0.45rem 0.6rem; margin-bottom: 0.45rem; }
+  .campo { font-size: 0.8125rem; gap: 0.15rem; }
+  .campo select, .campo input { min-height: 2.75rem; padding: 0.3rem 0.5rem; }
+  .boton, .boton--chico { min-height: 2.75rem; padding: 0.25rem 0.8rem; font-size: 0.9375rem; }
+  .estado { font-size: 0.8125rem; margin-bottom: 0.4rem; }
+  .tabla { font-size: 0.875rem; }
+  .tabla th, .tabla td { padding: 0.35rem 0.5rem; }
+  .tabla thead th { font-size: 0.8125rem; }
+  .th-sub { font-size: 0.75rem; }
+  .origen { font-size: 0.8125rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
