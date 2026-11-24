@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Calidad del agua · río Rímac (Chosica)</title>
   <meta name="description" content="Geoportal de la red de monitoreo de calidad del agua del río Rímac, tramo Chosica: semáforo de cumplimiento del ECA categoría 1-A2.">
   <meta name="theme-color" content="#0b4f6c">
@@ -11,111 +11,131 @@
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="css/estilos.css">
   <script src="vendor/leaflet/leaflet.js" defer></script>
-  <script src="js/app.js" defer></script>
+  <script src="js/app.js" type="module"></script>
 </head>
 <body>
   <header class="cabecera">
     <div class="cabecera__texto">
       <h1>Calidad del agua del río Rímac</h1>
-      <p class="cabecera__sub">Tramo Chosica · red de 5 estaciones · semáforo frente al ECA para Agua, categoría 1-A2</p>
+      <p class="cabecera__sub">Tramo Chosica · 5 estaciones · semáforo frente al ECA para Agua, categoría 1-A2</p>
     </div>
+    <button type="button" class="boton-info" popovertarget="info">
+      <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/></svg>
+      Información
+    </button>
   </header>
 
   <div class="aviso" id="aviso-simulado" role="note">
     <svg class="aviso__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></svg>
-    <p><strong>Incluye datos simulados.</strong> Las mediciones con origen <em>simulado</em> son de demostración y no corresponden a muestreos reales en campo.</p>
+    <p><strong>Incluye datos simulados.</strong><span class="aviso__largo"> Las mediciones con origen <em>simulado</em> son de demostración y no corresponden a muestreos reales en campo.</span></p>
   </div>
 
-  <main class="contenido">
-    <section class="panel-mapa" aria-labelledby="titulo-mapa">
-      <h2 id="titulo-mapa" class="visualmente-oculto">Mapa de estaciones</h2>
-      <div id="mapa" class="mapa" role="region" aria-label="Mapa de las estaciones de monitoreo"></div>
-      <p class="mapa__nota">Cada estación toma el color del peor resultado de su monitoreo más reciente.</p>
-    </section>
+  <div id="info" popover class="info" aria-labelledby="info-titulo">
+    <div class="info__cabecera">
+      <h2 id="info-titulo">Información sobre los datos</h2>
+      <button type="button" class="info__cerrar" popovertarget="info" popovertargetaction="hide" aria-label="Cerrar información">
+        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10"/><path d="M17 7L7 17"/></svg>
+      </button>
+    </div>
+    <h3>Límites</h3>
+    <p>Estándares de Calidad Ambiental (ECA) para Agua, categoría 1-A2: aguas que pueden ser potabilizadas con tratamiento convencional (D.S. N.° 004-2017-MINAM). Clasificación del cuerpo de agua: R.J. N.° 056-2018-ANA.</p>
+    <h3>Cómo leer el semáforo</h3>
+    <p>Cada medición se compara con su límite en la base de datos: <strong>Cumple</strong> si está dentro, <strong>No cumple</strong> si lo supera y <strong>Sin dato</strong> si falta el valor o no hay límite aplicable. En el mapa, cada estación toma el peor resultado de su monitoreo más reciente.</p>
+    <h3>Limitaciones</h3>
+    <ul>
+      <li>Las mediciones con origen <em>simulado</em> son de demostración, no muestreos reales.</li>
+      <li>Los sólidos disueltos totales (TDS) se estiman a partir de la conductividad.</li>
+      <li>La temperatura se evalúa como ±3 °C sobre una línea base mensual simulada por estación.</li>
+      <li>Fechas y horas en hora de Lima (UTC−5).</li>
+    </ul>
+    <h3>Mapa base</h3>
+    <p>© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL) · © <a href="https://carto.com/attributions">CARTO</a>. Mapa con <a href="https://leafletjs.com">Leaflet</a>.</p>
+  </div>
 
-    <aside class="lateral">
-      <section class="tarjeta" aria-labelledby="titulo-estaciones">
-        <h2 id="titulo-estaciones">Estaciones</h2>
-        <p class="resumen" id="resumen"></p>
+  <main class="app">
+    <div id="mapa" class="mapa" role="region" aria-label="Mapa de las estaciones de monitoreo"></div>
+
+    <aside class="panel" id="panel" data-hoja="plegada" aria-label="Panel de estaciones y mediciones">
+      <button type="button" class="panel__asa" id="asa" aria-controls="panel" aria-expanded="false" aria-label="Abrir panel">
+        <span aria-hidden="true"></span>
+      </button>
+
+      <div class="pestanas" id="pestanas" role="tablist" aria-label="Contenido del panel">
+        <button type="button" role="tab" id="tab-resumen" aria-controls="panel-resumen" aria-selected="true">Resumen</button>
+        <button type="button" role="tab" id="tab-estacion" aria-controls="panel-estacion" aria-selected="false" tabindex="-1">Estación</button>
+        <button type="button" role="tab" id="tab-mediciones" aria-controls="panel-mediciones" aria-selected="false" tabindex="-1">Mediciones</button>
+      </div>
+
+      <section class="panel__contenido" role="tabpanel" id="panel-resumen" aria-labelledby="tab-resumen" tabindex="0">
+        <h2 class="visualmente-oculto">Resumen</h2>
+        <p class="panel__intro">Estaciones según su monitoreo más reciente</p>
+        <ul class="conteos">
+          <li class="conteo conteo--cumple"><span class="conteo__etiqueta" data-icono="cumple">Cumplen</span><span class="conteo__numero" data-conteo="cumple">–</span></li>
+          <li class="conteo conteo--no-cumple"><span class="conteo__etiqueta" data-icono="no cumple">No cumplen</span><span class="conteo__numero" data-conteo="no cumple">–</span></li>
+          <li class="conteo conteo--sin-dato"><span class="conteo__etiqueta" data-icono="sin dato">Sin dato</span><span class="conteo__numero" data-conteo="sin dato">–</span></li>
+        </ul>
+        <h3 class="panel__subtitulo">Estaciones</h3>
         <ul class="estaciones" id="lista-estaciones" aria-live="polite">
-          <li class="estaciones__cargando">Cargando estaciones…</li>
+          <li class="lista-vacia">Cargando estaciones…</li>
         </ul>
       </section>
 
-      <section class="tarjeta" aria-labelledby="titulo-leyenda">
-        <h2 id="titulo-leyenda">Leyenda</h2>
-        <ul class="leyenda">
-          <li><span class="semaforo semaforo--cumple" data-icono="cumple">Cumple</span> <span>El valor está dentro del límite del ECA.</span></li>
-          <li><span class="semaforo semaforo--no-cumple" data-icono="no cumple">No cumple</span> <span>El valor supera el límite del ECA.</span></li>
-          <li><span class="semaforo semaforo--sin-dato" data-icono="sin dato">Sin dato</span> <span>Falta el valor o no hay límite aplicable.</span></li>
-        </ul>
-        <p class="fuente">
-          Límites: Estándares de Calidad Ambiental para Agua, categoría&nbsp;1-A2
-          (D.S. N.°&nbsp;004-2017-MINAM). Clasificación del cuerpo de agua:
-          R.J. N.°&nbsp;056-2018-ANA.
-        </p>
-        <p class="fuente">
-          Sólidos disueltos totales estimados a partir de la conductividad.
-          Temperatura evaluada como ±3&nbsp;°C sobre una línea base mensual simulada.
-        </p>
+      <section class="panel__contenido" role="tabpanel" id="panel-estacion" aria-labelledby="tab-estacion" tabindex="0" hidden>
+        <p class="lista-vacia" id="estacion-vacia">Selecciona una estación en el mapa o en el Resumen.</p>
+        <div id="estacion-detalle" hidden></div>
+      </section>
+
+      <section class="panel__contenido panel__contenido--tabla" role="tabpanel" id="panel-mediciones" aria-labelledby="tab-mediciones" tabindex="0" hidden>
+        <h2 class="visualmente-oculto">Mediciones</h2>
+        <form class="filtros" id="filtros" novalidate>
+          <label class="campo">
+            <span>Estación</span>
+            <select name="estacion" id="filtro-estacion">
+              <option value="">Todas</option>
+            </select>
+          </label>
+          <label class="campo">
+            <span>Parámetro</span>
+            <select name="parametro" id="filtro-parametro">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label class="campo">
+            <span>Desde</span>
+            <input type="date" name="desde" id="filtro-desde">
+          </label>
+          <label class="campo">
+            <span>Hasta</span>
+            <input type="date" name="hasta" id="filtro-hasta">
+          </label>
+          <div class="filtros__acciones">
+            <button type="submit" class="boton boton--primario">Filtrar</button>
+            <button type="reset" class="boton">Limpiar</button>
+          </div>
+        </form>
+
+        <p class="estado" id="estado-tabla" role="status" aria-live="polite"></p>
+
+        <div class="tabla-contenedor" role="region" aria-label="Tabla de mediciones" tabindex="0">
+          <table class="tabla" id="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Fecha y hora<br><span class="th-sub">Lima, UTC−5</span></th>
+                <th scope="col">Estación</th>
+                <th scope="col">Parámetro</th>
+                <th scope="col" class="num">Valor</th>
+                <th scope="col">Unidad</th>
+                <th scope="col">Límite ECA</th>
+                <th scope="col">Semáforo</th>
+                <th scope="col">Origen</th>
+                <th scope="col">Monitoreo</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-cuerpo"></tbody>
+          </table>
+        </div>
       </section>
     </aside>
-
-    <section class="mediciones tarjeta" aria-labelledby="titulo-mediciones">
-      <h2 id="titulo-mediciones">Mediciones</h2>
-
-      <form class="filtros" id="filtros" novalidate>
-        <label class="campo">
-          <span>Estación</span>
-          <select name="estacion" id="filtro-estacion">
-            <option value="">Todas</option>
-          </select>
-        </label>
-        <label class="campo">
-          <span>Parámetro</span>
-          <select name="parametro" id="filtro-parametro">
-            <option value="">Todos</option>
-          </select>
-        </label>
-        <label class="campo">
-          <span>Desde</span>
-          <input type="date" name="desde" id="filtro-desde">
-        </label>
-        <label class="campo">
-          <span>Hasta</span>
-          <input type="date" name="hasta" id="filtro-hasta">
-        </label>
-        <div class="filtros__acciones">
-          <button type="submit" class="boton boton--primario">Filtrar</button>
-          <button type="reset" class="boton">Limpiar</button>
-        </div>
-      </form>
-
-      <p class="estado" id="estado-tabla" role="status" aria-live="polite">Cargando mediciones…</p>
-
-      <div class="tabla-contenedor" role="region" aria-labelledby="titulo-mediciones" tabindex="0">
-        <table class="tabla" id="tabla">
-          <thead>
-            <tr>
-              <th scope="col">Fecha y hora<br><span class="th-sub">Lima, UTC−5</span></th>
-              <th scope="col">Estación</th>
-              <th scope="col">Monitoreo</th>
-              <th scope="col">Parámetro</th>
-              <th scope="col" class="num">Valor</th>
-              <th scope="col">Unidad</th>
-              <th scope="col">Límite ECA</th>
-              <th scope="col">Semáforo</th>
-              <th scope="col">Origen</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-cuerpo"></tbody>
-        </table>
-      </div>
-    </section>
   </main>
-
-  <footer class="pie">
-    <p>Geoportal de la red de monitoreo del río Rímac, tramo Chosica. Mapa base © OpenStreetMap contributors © CARTO.</p>
-  </footer>
 </body>
 </html>
