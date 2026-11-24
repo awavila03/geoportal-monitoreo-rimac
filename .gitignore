@@ -1,0 +1,14 @@
+# Secretos y configuración real (solo existe en el servidor)
+.env
+config.yaml
+
+# Datos y archivos de campo
+*.gpkg
+
+# Documentación de trabajo (solo local)
+documentacion/
+
+# Proyecto Mergin (no se versiona)
+mergin/*.qgz
+mergin/*.gpkg
+mergin/.mergin/
