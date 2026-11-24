@@ -13,3 +13,4 @@ mergin/*.qgz
 mergin/*.gpkg
 mergin/.mergin/
 mergin/monitoreo-rimac/
+.mcp.json
