@@ -116,7 +116,7 @@ def test_api_inexistente_404(cliente):
 def test_cabeceras_seguridad(cliente):
     h = cliente.get("/api/salud").headers
     assert "default-src 'self'" in h["content-security-policy"]
-    assert "https://*.basemaps.cartocdn.com" in h["content-security-policy"]
+    assert "img-src 'self' data: https://basemaps.cartocdn.com" in h["content-security-policy"]
     assert h["x-content-type-options"] == "nosniff"
 
 
@@ -129,7 +129,13 @@ def test_config_por_defecto_positron_sin_key(cliente):
     assert set(mb) == {"url", "subdominios", "max_zoom", "atribucion"}
 
 
-def test_config_con_key():
+def test_config_carto_con_key_agrega_parametro():
+    mb = leer_mapa_base({"CARTO_API_KEY": "k/1"})
+    assert mb.url == POSITRON + "?key=k%2F1"
+    assert mb.origen_csp == "https://basemaps.cartocdn.com"
+
+
+def test_config_con_marcador_api_key():
     mb = leer_mapa_base({
         "MAPA_BASE_URL": "https://tiles.ejemplo.org/{z}/{x}/{y}.png?api_key={api_key}",
         "CARTO_API_KEY": "abc 123",

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calidad del agua · río Rímac (Chosica)</title>
+  <meta name="description" content="Geoportal de la red de monitoreo de calidad del agua del río Rímac, tramo Chosica: semáforo de cumplimiento del ECA categoría 1-A2.">
+  <meta name="theme-color" content="#0b4f6c">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="vendor/fonts/source-sans-3-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/estilos.css">
+  <script src="vendor/leaflet/leaflet.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <header class="cabecera">
+    <div class="cabecera__texto">
+      <h1>Calidad del agua del río Rímac</h1>
+      <p class="cabecera__sub">Tramo Chosica · red de 5 estaciones · semáforo frente al ECA para Agua, categoría 1-A2</p>
+    </div>
+  </header>
+
+  <div class="aviso" id="aviso-simulado" role="note">
+    <svg class="aviso__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/></svg>
+    <p><strong>Incluye datos simulados.</strong> Las mediciones con origen <em>simulado</em> son de demostración y no corresponden a muestreos reales en campo.</p>
+  </div>
+
+  <main class="contenido">
+    <section class="panel-mapa" aria-labelledby="titulo-mapa">
+      <h2 id="titulo-mapa" class="visualmente-oculto">Mapa de estaciones</h2>
+      <div id="mapa" class="mapa" role="region" aria-label="Mapa de las estaciones de monitoreo"></div>
+      <p class="mapa__nota">Cada estación toma el color del peor resultado de su monitoreo más reciente.</p>
+    </section>
+
+    <aside class="lateral">
+      <section class="tarjeta" aria-labelledby="titulo-estaciones">
+        <h2 id="titulo-estaciones">Estaciones</h2>
+        <p class="resumen" id="resumen"></p>
+        <ul class="estaciones" id="lista-estaciones" aria-live="polite">
+          <li class="estaciones__cargando">Cargando estaciones…</li>
+        </ul>
+      </section>
+
+      <section class="tarjeta" aria-labelledby="titulo-leyenda">
+        <h2 id="titulo-leyenda">Leyenda</h2>
+        <ul class="leyenda">
+          <li><span class="semaforo semaforo--cumple" data-icono="cumple">Cumple</span> <span>El valor está dentro del límite del ECA.</span></li>
+          <li><span class="semaforo semaforo--no-cumple" data-icono="no cumple">No cumple</span> <span>El valor supera el límite del ECA.</span></li>
+          <li><span class="semaforo semaforo--sin-dato" data-icono="sin dato">Sin dato</span> <span>Falta el valor o no hay límite aplicable.</span></li>
+        </ul>
+        <p class="fuente">
+          Límites: Estándares de Calidad Ambiental para Agua, categoría&nbsp;1-A2
+          (D.S. N.°&nbsp;004-2017-MINAM). Clasificación del cuerpo de agua:
+          R.J. N.°&nbsp;056-2018-ANA.
+        </p>
+        <p class="fuente">
+          Sólidos disueltos totales estimados a partir de la conductividad.
+          Temperatura evaluada como ±3&nbsp;°C sobre una línea base mensual simulada.
+        </p>
+      </section>
+    </aside>
+
+    <section class="mediciones tarjeta" aria-labelledby="titulo-mediciones">
+      <h2 id="titulo-mediciones">Mediciones</h2>
+
+      <form class="filtros" id="filtros" novalidate>
+        <label class="campo">
+          <span>Estación</span>
+          <select name="estacion" id="filtro-estacion">
+            <option value="">Todas</option>
+          </select>
+        </label>
+        <label class="campo">
+          <span>Parámetro</span>
+          <select name="parametro" id="filtro-parametro">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label class="campo">
+          <span>Desde</span>
+          <input type="date" name="desde" id="filtro-desde">
+        </label>
+        <label class="campo">
+          <span>Hasta</span>
+          <input type="date" name="hasta" id="filtro-hasta">
+        </label>
+        <div class="filtros__acciones">
+          <button type="submit" class="boton boton--primario">Filtrar</button>
+          <button type="reset" class="boton">Limpiar</button>
+        </div>
+      </form>
+
+      <p class="estado" id="estado-tabla" role="status" aria-live="polite">Cargando mediciones…</p>
+
+      <div class="tabla-contenedor" role="region" aria-labelledby="titulo-mediciones" tabindex="0">
+        <table class="tabla" id="tabla">
+          <thead>
+            <tr>
+              <th scope="col">Fecha y hora<br><span class="th-sub">Lima, UTC−5</span></th>
+              <th scope="col">Estación</th>
+              <th scope="col">Monitoreo</th>
+              <th scope="col">Parámetro</th>
+              <th scope="col" class="num">Valor</th>
+              <th scope="col">Unidad</th>
+              <th scope="col">Límite ECA</th>
+              <th scope="col">Semáforo</th>
+              <th scope="col">Origen</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-cuerpo"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <p>Geoportal de la red de monitoreo del río Rímac, tramo Chosica. Mapa base © OpenStreetMap contributors © CARTO.</p>
+  </footer>
+</body>
+</html>

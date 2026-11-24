@@ -5,13 +5,19 @@ PGDATABASE, PGUSER, PGPASSWORD), que psycopg lee por sí solo.
 Aquí solo se valida la configuración del mapa base.
 """
 
+import logging
 import os
 import re
 from dataclasses import dataclass
 from urllib.parse import quote, urlsplit
 
-# CARTO Positron: teselas ráster públicas, no requieren API key.
-POSITRON = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+log = logging.getLogger("geoportal")
+
+# CARTO Positron (estilo ráster light_all). Desde 2026 CARTO exige una key
+# (?key=...) en toda URL de basemaps.cartocdn.com; sin ella las teselas salen
+# con la marca de agua "API KEY REQUIRED".
+POSITRON = "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png"
+HOST_CARTO = "basemaps.cartocdn.com"
 
 ATRIBUCION = (
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors '
@@ -53,14 +59,19 @@ def leer_mapa_base(env=None) -> MapaBase:
     for marcador in ("{z}", "{x}", "{y}"):
         if marcador not in url:
             raise ErrorConfig(f"MAPA_BASE_URL debe contener {marcador}")
+    host = (urlsplit(url).hostname or "").replace("{s}", "*")
+    if not _HOST_VALIDO.match(host):
+        raise ErrorConfig("MAPA_BASE_URL tiene un host no válido")
+
     if "{api_key}" in url:
         if not clave:
             raise ErrorConfig("MAPA_BASE_URL usa {api_key} pero CARTO_API_KEY está vacía")
         url = url.replace("{api_key}", quote(clave, safe=""))
-
-    host = (urlsplit(url).hostname or "").replace("{s}", "*")
-    if not _HOST_VALIDO.match(host):
-        raise ErrorConfig("MAPA_BASE_URL tiene un host no válido")
+    elif host == HOST_CARTO or host.endswith("." + HOST_CARTO):
+        if clave:
+            url += ("&" if "?" in url else "?") + "key=" + quote(clave, safe="")
+        else:
+            log.warning("CARTO_API_KEY vacía: el mapa base mostrará 'API KEY REQUIRED'")
 
     return MapaBase(
         url=url,
