@@ -14,3 +14,8 @@ mergin/*.gpkg
 mergin/.mergin/
 mergin/monitoreo-rimac/
 .mcp.json
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/

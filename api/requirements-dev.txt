@@ -1,0 +1,4 @@
+# Pruebas: pip install -r api/requirements-dev.txt && pytest api/tests
+-r requirements.txt
+pytest==9.2.0
+httpx==0.28.1
