@@ -19,6 +19,10 @@ log = logging.getLogger("geoportal")
 POSITRON = "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png"
 HOST_CARTO = "basemaps.cartocdn.com"
 
+# CARTO sirve teselas ráster solo hasta z18 (desde z19 responde 403 y el mapa
+# queda en blanco); 17 deja margen y basta para el tramo Chosica.
+MAX_ZOOM = 17
+
 ATRIBUCION = (
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors '
     '&copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -76,7 +80,7 @@ def leer_mapa_base(env=None) -> MapaBase:
     return MapaBase(
         url=url,
         subdominios="abcd" if "{s}" in url else "",
-        max_zoom=20,
+        max_zoom=MAX_ZOOM,
         atribucion=ATRIBUCION,
         origen_csp=f"https://{host}",
     )

@@ -109,10 +109,12 @@ function crearMapa(config) {
   // El contenedor cambia de alto al llenarse el panel lateral: Leaflet debe saberlo.
   new ResizeObserver(() => mapa.invalidateSize()).observe(document.getElementById("mapa"));
   const mb = config && config.mapa_base;
+  const maxZoom = (mb && mb.max_zoom) || 17;
+  mapa.setMaxZoom(maxZoom);   // ni el control ni la rueda pasan del máximo que sirve el proveedor
   if (mb) {
     L.tileLayer(mb.url, {
       subdomains: mb.subdominios || "abc",
-      maxZoom: mb.max_zoom || 19,
+      maxZoom,
       attribution: mb.atribucion,
     }).addTo(mapa);
   }

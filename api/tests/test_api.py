@@ -127,6 +127,7 @@ def test_config_por_defecto_positron_sin_key(cliente):
     assert mb["url"] == POSITRON
     assert "OpenStreetMap" in mb["atribucion"] and "CARTO" in mb["atribucion"]
     assert set(mb) == {"url", "subdominios", "max_zoom", "atribucion"}
+    assert mb["max_zoom"] == 17
 
 
 def test_config_carto_con_key_agrega_parametro():
