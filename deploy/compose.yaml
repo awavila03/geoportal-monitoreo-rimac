@@ -1,0 +1,39 @@
+# Uso (desde la raíz del repo en el servidor):
+#   docker compose -f deploy/compose.yaml up -d --build
+# Requiere .env en la raíz del repo (copia de .env.example) y la red externa geoavila-net.
+name: geoportal-rimac
+
+services:
+  geoportal-rimac:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: geoportal-rimac:latest
+    container_name: geoportal-rimac
+    env_file: ../.env
+    restart: unless-stopped
+    # Sin "ports": solo accesible dentro de geoavila-net (Caddy hace de proxy).
+    networks:
+      - geoavila-net
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/salud', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  geoavila-net:
+    external: true

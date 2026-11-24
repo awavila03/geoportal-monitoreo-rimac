@@ -1,0 +1,7 @@
+# Solo api/ y web/ entran en la imagen
+*
+!api/
+!web/
+**/__pycache__
+**/.pytest_cache
+api/tests/

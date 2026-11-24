@@ -1,0 +1,11 @@
+# Bloque para añadir al Caddyfile del servidor.
+# Sustituir RIMAC_DOMINIO por el dominio real antes de añadirlo.
+# El contenedor de Caddy debe estar en la red geoavila-net y tener CF_API_TOKEN.
+
+RIMAC_DOMINIO {
+	tls {
+		dns cloudflare {env.CF_API_TOKEN}
+		resolvers 1.1.1.1
+	}
+	reverse_proxy geoportal-rimac:8000
+}
